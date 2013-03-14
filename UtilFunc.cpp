@@ -944,9 +944,9 @@ void AngleSplit(double x0, double y0, double x1, double y1, double x2, double y2
 
 double TriEdgeCircleR(const Point point1, const Point point2, const Point point3, const Point point4, Point& pointCenter)
 {
-	double dX1, dY1, dX2, dY2;
-	
-	//point3 - point1 - point2 - point4
+	//		
+	//point3	 - point1		- point2		 - point4
+	//		point(dXTmp2, dYTmp2)	point(dXTmp1, dYTmp1)
 	double dXTmp1, dYTmp1;
 	double dXTmp2, dYTmp2;
 	AngleSplit( point3.x(), point3.y(), point1.x(), point1.y(), 
@@ -955,10 +955,12 @@ double TriEdgeCircleR(const Point point1, const Point point2, const Point point3
 		point4.x(), point4.y(), dXTmp2, dYTmp2);
 
 	double dX, dY;
-	if(LinesCross(dX1, dY1, dX2, dY2, dXTmp1, dYTmp1, dXTmp2, dYTmp2, dX, dY))
+	if(LinesCross(point1.x(), point1.y(), dXTmp1, dYTmp1,
+		point2.x(), point2.y(), dXTmp2, dYTmp2, dX, dY))
 	{
 		pointCenter = Point(dX, dY);
-		return disPt2Line(dX1, dY1, dX2, dY2, dX, dY, dXTmp1, dYTmp1);
+		return disPt2Line(point1.x(), point1.y(), point2.x(), point2.y(),
+			dX, dY, dXTmp1, dYTmp1);
 	}
 	else
 	{

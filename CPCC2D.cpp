@@ -4672,11 +4672,11 @@ double CPCC2D::doCirclePackingInscribedCenter2(const double k, double& delta)
 			if(-1 != pairTapRadii.first)
 			{//Restrict applyment
 				//pair now found position
-				// vit->id, new_r, pt
+				// vit->id, new_r, pt ~ pointTmp1
 				//cv::Point2d pointTmp1(pt.x(), pt.y());
 				Point pointTmp1 = pt;
 				//pair old found position
-				//pairTapRadii.first, pairTapRadii.second, m_point[pairTapRadii.first].point
+				//pairTapRadii.first, pairTapRadii.second, m_point[pairTapRadii.first].point ~ pointTmp2
 				//cv::Point2d pointTmp2(m_points[pairTapRadii.first].x(), 
 					//m_points[pairTapRadii.first].y());
 				Point pointTmp2(m_points[pairTapRadii.first].x(),
@@ -4690,13 +4690,15 @@ double CPCC2D::doCirclePackingInscribedCenter2(const double k, double& delta)
 					if((*vit2)->id == pairTapRadii.first)
 					{
 						double dNew_r = Radious(v->id, pairTapRadii.first, new_r, pairTapRadii.second, 
-							this->pPairInfo->RateOf(v->id, pairTapRadii.first), pointTmp1, pointTmp2, **vit2, **vit);
+							this->pPairInfo->RateOf(v->id, pairTapRadii.first), pointTmp1, pointTmp2,  **vit, **vit2);
+						pPairInfo->ClearMapRadi(v->id, (*vit2)->id);
+
 						//more
 						new_r = dNew_r;
 						//total error refresh
 						Point pointTmp = (*vit2)->pos;
-						double error = (pointTmp.x()-pointTmp2.x)*(pointTmp.x()-pointTmp2.x)
-							+ (pointTmp.y()-pointTmp2.y)*(pointTmp.y()-pointTmp2.y);
+						double error = (pointTmp.x()-pointTmp2.x())*(pointTmp.x()-pointTmp2.x())
+							+ (pointTmp.y()-pointTmp2.y())*(pointTmp.y()-pointTmp2.y());
 						totalerror += error;
 
 						//find mink
@@ -4709,7 +4711,7 @@ double CPCC2D::doCirclePackingInscribedCenter2(const double k, double& delta)
 							found = true;
 						}
 						//pair first found vertices refresh
-						(*vit2)->inCenter = Point(pointTmp2.x, pointTmp2.y);
+						(*vit2)->inCenter = pointTmp2;
 						(*vit2)->inRadius = new_r;
 
 						//pair first m_points[] refresh
@@ -6857,7 +6859,7 @@ void CPCC2D::Show()
 		aPointTrail.push_back(aTrail);
     }
 	
-	//Display
+	//Display detail repair
 	double fScale = 1.0;
 	int nShowW = static_cast<int>(1050.0 * fScale + 0.5);
 	int nShowH = static_cast<int>(750.0 * fScale + 0.5);
@@ -6881,9 +6883,9 @@ void CPCC2D::Show()
             aContours[i][j].y = (int)std::max(0.0, std::min(Pt.y, nShowH*1.0));
         }
     }
+	
+	//Display
     cv::Mat ShowImg = cv::Mat::zeros(ShowSize, CV_8UC3);
-	cv::imshow("BlankWindow", ShowImg);
-	cv::waitKey();
 
     cv::drawContours(ShowImg, aContours, -1, cv::Scalar::all(255), 2, CV_AA);
 	//circles
@@ -6895,7 +6897,7 @@ void CPCC2D::Show()
 	if(NULL != this->pPairInfo)
 		this->pPairInfo->Draw(ShowImg, aCircleCenter);
 
-	//Trail
+	//Circle Hearts Trails
 	/*cv::Point2d pointTmp1, pointTmp2;
 	for(int i = 0; i<aPointTrail.size(); ++i)
 	{
@@ -6911,6 +6913,8 @@ void CPCC2D::Show()
     cv::imwrite("StepShow.jpg", ShowImg);
     std::string strWindowName("StepShow");
     cv::namedWindow(strWindowName, CV_WINDOW_AUTOSIZE);
+
+	cout<< "Incoming!"<< endl;
     cv::imshow(strWindowName, ShowImg);
     cv::waitKey(0);
 }
